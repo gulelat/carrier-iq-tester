@@ -145,12 +145,15 @@ class StatPage(webapp.RequestHandler) :
         allowAdmins(self, self.onAdmin)
 
     def stats(self) :
-        cnt, verified = 0, 0
+        cnt, verified, forged = 0, 0, 0
         phones, carriers, oses = set(), set(), set()
         dat = dict()
         for r in Report.all() :
             cnt += 1
-            verified += 1
+            if r.verified == VERIFIED_YES :
+                verified += 1
+            if r.verified == VERIFIED_NO :
+                forged += 1
             phones.add(r.phone)
             carriers.add(r.carrier)
             oses.add(r.os)
@@ -161,19 +164,21 @@ class StatPage(webapp.RequestHandler) :
             s.add(r.src)
 
         # post-process dat to get sorted popularity counts
-        for k in dat.keys() :
+        r = []
+        for k in sorted(dat.keys()) :
             d = dat[k]
             pops = [(len(s), k2) for k2,s in d.items()]
             pops.sort(reverse=True)
-            dat[k] = pops
+            r.append((k, pops))
 
         return {
             'cnt': cnt,
             'verified': verified,
+            'forged': forged,
             'phones': sorted(phones),
             'oses': sorted(oses),
             'carriers': sorted(carriers),
-            'dat': dat,
+            'dat': r,
         }
 
     def onAdmin(self, user) :

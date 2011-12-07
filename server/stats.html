@@ -3,33 +3,46 @@
 <body>
 <h1>CIQ Reporter Status</h1>
 <table border=1>
-  <tr><th>cnt</th><td>{{ cnt }}</td></tr>
+  <tr><th>Total reports</th><td>{{ cnt }}</td></tr>
   <tr><th>verified</th><td>{{ verified }}</td></tr>
+  <tr><th>forged</th><td>{{ forged }}</td></tr>
   <tr><th>phones</th><td>{{ phones|length }}</td></tr>
   <tr><th>OSes</th><td>{{ oses|length }}</td></tr>
   <tr><th>carriers</th><td>{{ carriers|length }}</td></tr>
 </table>
 
+<p>
+<table>
+<tr>
+
+<td>
 <h3>Phones</h3>
 <table border=1>
   {% for x in phones %}
     <tr><td>{{ x }}</td></tr>
   {% endfor %}
 </table>
+</td>
 
+<td>
 <h3>OSes</h3>
 <table border=1>
   {% for x in oses %}
     <tr><td>{{ x }}</td></tr>
   {% endfor %}
 </table>
+</td>
 
+<td>
 <h3>Carriers</h3>
 <table border=1>
   {% for x in carriers %}
     <tr><td>{{ x }}</td></tr>
   {% endfor %}
 </table>
+</td>
+
+</tr></table>
 
 <h3>Data</h3>
 <table border=1>
@@ -38,13 +51,13 @@
       <th>OS</th>
       <th>Popularity</th>
       <th>Features</th></tr>
-  {% for k, v in dat.items %}
-    {% for x in v %}
+  {% for k, v in dat %}
+    {% for pop, feat in v %}
       <tr><td>{{ k.0 }}</td>
           <td>{{ k.1 }}</td>
           <td>{{ k.2 }}</td>
-          <td>{{ x.0 }}</td>
-          <td>{{ x.1 }}</td>
+          <td>{{ pop }}</td>
+          <td>{{ feat }}</td>
     {% endfor %}
   {% endfor %}
 </table>
