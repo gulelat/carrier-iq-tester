@@ -8,6 +8,12 @@ We don't need strong consistency guarantees, so we
 don't do anything special with ancestor queries or parent keys.
 """
 
+# magic incantiation to use up-to-date django
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from google.appengine.dist import use_library
+use_library('django', '1.2')
+
 import cgi, hashlib, os
 
 from google.appengine.ext import db
@@ -124,6 +130,57 @@ class AdminPage(webapp.RequestHandler) :
         wr('<p>obfSrc is: %x' % (x))
         wr('<p>unIp is: %x' % (unIp(self.request.remote_addr)))
 
+def getWithAdd(d, k, f) :
+    if k not in d :
+        d[k] = f()
+    return d[k]
+
+class StatPage(webapp.RequestHandler) :
+    """
+    Generate stats.  XXX right now we generate and output
+    stats.. later we should generate stats once, and cache and
+    later just report the pregenerated stats.
+    """
+    def get(self) :
+        allowAdmins(self, self.onAdmin)
+
+    def stats(self) :
+        cnt, verified = 0, 0
+        phones, carriers, oses = set(), set(), set()
+        dat = dict()
+        for r in Report.all() :
+            cnt += 1
+            verified += 1
+            phones.add(r.phone)
+            carriers.add(r.carrier)
+            oses.add(r.os)
+
+            k = r.phone, r.carrier, r.os
+            d = getWithAdd(dat, k, dict)
+            s = getWithAdd(d, r.features, set)
+            s.add(r.src)
+
+        # post-process dat to get sorted popularity counts
+        for k in dat.keys() :
+            d = dat[k]
+            pops = [(len(s), k2) for k2,s in d.items()]
+            pops.sort(reverse=True)
+            dat[k] = pops
+
+        return {
+            'cnt': cnt,
+            'verified': verified,
+            'phones': sorted(phones),
+            'oses': sorted(oses),
+            'carriers': sorted(carriers),
+            'dat': dat,
+        }
+
+    def onAdmin(self, user) :
+        s = self.stats()
+        templ(self, 'stats.html', **s)
+        
+
 class MainPage(webapp.RequestHandler) :
     def get(self):
         templ(self, 'main.html')
@@ -144,6 +201,7 @@ class TestForm(webapp.RequestHandler) :
 application = webapp.WSGIApplication([
     ('/report', ReportPage),
     ('/admin', AdminPage),
+    ('/admin/stats', StatPage),
     ('/test', TestForm),
     ('/', MainPage),
 ], debug=options['debug'])
