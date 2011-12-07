@@ -8,11 +8,12 @@ We don't need strong consistency guarantees, so we
 don't do anything special with ancestor queries or parent keys.
 """
 
-import cgi, hashlib
+import cgi, hashlib, os
 
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 options = {
@@ -110,8 +111,13 @@ class ReportPage(webapp.RequestHandler) :
         self.response.headers['Content-Type'] = 'text/xml'
         self.response.out.write('<response><status>0</status><message>Thank You.</message></response>')
 
+def templ(self, path, **kw) :
+    """Emit a template."""
+    p = os.path.join(os.path.join(os.path.dirname(__file__), path))
+    self.response.out.write(template.render(p, kw))
+
 def errorPage(self, **kw) :
-    self.response.out.write(options['errorPage'] % kw)
+    return templ(self, 'error.html', **kw)
 
 def allowAdmins(self, onAdmin) :
     user = users.get_current_user()
