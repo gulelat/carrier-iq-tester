@@ -22,25 +22,6 @@ options = {
     'verify_inline': True,
     'secret': 'no cheating, please',
     'admins': ['tim.newsham@gmail.com'],
-
-    # ---
-    # XXX consider using templates
-    'errorPage': '''<html>
-<head><title>Error: %(error)s</title></head>
-<body>
-<h1>Error</h1>
-Error: %(error)s
-</body>
-</html>''',
-    # ---
-    'mainPage': '''<html>
-<head><title>CIQ Report</title></head>
-<body>
-<h1>CIQ Report</h1>
-This page is for reporting your CIQ data.
-See <a href="xxx">xxx</a> for more info.
-</body>
-</html>''',
 }
 
 VERIFIED_NONE, VERIFIED_NO, VERIFIED_YES = -1,0,1
@@ -145,7 +126,7 @@ class AdminPage(webapp.RequestHandler) :
 
 class MainPage(webapp.RequestHandler) :
     def get(self):
-        self.response.out.write(options['mainPage'])
+        templ(self, 'main.html')
 
 class TestForm(webapp.RequestHandler) :
     def get(self) :
