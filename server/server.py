@@ -1,95 +1,169 @@
 #!/usr/bin/env python2.5
 """
-Demo from app engine tutorial
+The server places user reports into the database, allows
+admins to process the database for statistics and displays
+the results of previously processed statistics.
+
+We don't need strong consistency guarantees, so we
+don't do anything special with ancestor queries or parent keys.
 """
 
-import cgi
-import datetime
-import urllib
-import wsgiref.handlers
+import cgi, hashlib
 
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+options = {
+    'debug': True,
+    'testForm': True,
+    'verify_inline': True,
+    'secret': 'no cheating, please',
+    'admins': ['tim.newsham@gmail.com'],
 
-class Greeting(db.Model):
-  """Models an individual Guestbook entry with an author, content, and date."""
-  author = db.UserProperty()
-  content = db.StringProperty(multiline=True)
-  date = db.DateTimeProperty(auto_now_add=True)
+    # ---
+    # XXX consider using templates
+    'errorPage': '''<html>
+<head><title>Error: %(error)s</title></head>
+<body>
+<h1>Error</h1>
+Error: %(error)s
+</body>
+</html>''',
+    # ---
+    'mainPage': '''<html>
+<head><title>CIQ Report</title></head>
+<body>
+<h1>CIQ Report</h1>
+This page is for reporting your CIQ data.
+See <a href="xxx">xxx</a> for more info.
+</body>
+</html>''',
+}
 
+VERIFIED_NONE, VERIFIED_NO, VERIFIED_YES = -1,0,1
 
-def guestbook_key(guestbook_name=None):
-  """Constructs a datastore key for a Guestbook entity with guestbook_name."""
-  return db.Key.from_path('Guestbook', guestbook_name or 'default_guestbook')
+class Report(db.Model) :
+    """A single report submitted from an app user."""
+    when = db.DateTimeProperty(auto_now_add=True)
+    src = db.IntegerProperty() # anonymized IP address
+    os = db.StringProperty()
+    phone = db.StringProperty()
+    carrier = db.StringProperty()
+    features = db.IntegerProperty() # bit vector
+    auth = db.StringProperty() # sha hash
+    verified = db.IntegerProperty() # VERIFIED_*
 
+def verify(r) :
+    def hash(s) :
+        return hashlib.sha256(s).hexdigest()
+    # XXX find a good way to print out the when field for this...
+    auth = hash("secret=%s:when=%s:os=%r:phone=%r:carrier=%r:features=%d" % (options['secret'], r.when, r.os, r.phone, r.carrier, r.features))
+    if r.auth == auth :
+        r.verified = VERIFIED_YES
+    else :
+        r.verified = VERIFIED_NO
 
-class MainPage(webapp.RequestHandler):
-  def get(self):
-    self.response.out.write('<html><body>')
-    guestbook_name=self.request.get('guestbook_name')
+def unIp(x) :
+    try :
+        a,b,c,d = map(int, x.split('.'))
+    except ValueError :
+        return 0
 
-    # Ancestor Queries, as shown here, are strongly consistent with the High
-    # Replication datastore. Queries that span entity groups are eventually
-    # consistent. If we omitted the ancestor from this query there would be a
-    # slight chance that Greeting that had just been written would not show up
-    # in a query.
-    greetings = db.GqlQuery("SELECT * "
-                            "FROM Greeting "
-                            "WHERE ANCESTOR IS :1 "
-                            "ORDER BY date DESC LIMIT 10",
-                            guestbook_key(guestbook_name))
+    for x in a,b,c,d :
+        if not (0 <= x and x <= 255) :
+            return 0
+    return (a << 24) | (b << 16) | (c << 8) | d
 
-    for greeting in greetings:
-      if greeting.author:
-        self.response.out.write(
-            '<b>%s</b> wrote:' % greeting.author.nickname())
-      else:
-        self.response.out.write('An anonymous person wrote:')
-      self.response.out.write('<blockquote>%s</blockquote>' %
-                              cgi.escape(greeting.content))
+def obfSrc(x) :
+    """
+    Discard every other bit, and the (likely) host field from the IP address.
+    This will leave 4096 unique values (2^(4*3)).
+    """
+    return unIp(x) & 0x55555500
 
-    self.response.out.write("""
-          <form action="/sign?%s" method="post">
-            <div><textarea name="content" rows="3" cols="60"></textarea></div>
-            <div><input type="submit" value="Sign Guestbook"></div>
-          </form>
-          <hr>
-          <form>Guestbook name: <input value="%s" name="guestbook_name">
-          <input type="submit" value="switch"></form>
-        </body>
-      </html>""" % (urllib.urlencode({'guestbook_name': guestbook_name}),
-                          cgi.escape(guestbook_name)))
+class ReportPage(webapp.RequestHandler) :
+    """
+    Posts from the android app are placed into the database.
+    """
+    def post(self) :
+        try :
+            features = int(self.request.get('features'))
+        except ValueError :
+            errorPage(self, error='Invalid Parameter')
+            return
 
+        r = Report()
+        r.src = obfSrc(self.request.remote_addr)
+        r.os = self.request.get('os')
+        r.phone = self.request.get('phone')
+        r.carrier = self.request.get('carrier')
+        r.features = features
+        r.auth = self.request.get('auth')
+        r.verified = VERIFIED_NONE
+        
+        if options['verify_inline'] :
+            verify(r)
+        r.put()
 
-class Guestbook(webapp.RequestHandler):
-  def post(self):
-    # We set the same parent key on the 'Greeting' to ensure each greeting is in
-    # the same entity group. Queries across the single entity group will be
-    # consistent. However, the write rate to a single entity group should
-    # be limited to ~1/second.
-    guestbook_name = self.request.get('guestbook_name')
-    greeting = Greeting(parent=guestbook_key(guestbook_name))
+        self.response.headers['Content-Type'] = 'text/xml'
+        self.response.out.write('<response><status>0</status><message>Thank You.</message></response>')
 
-    if users.get_current_user():
-      greeting.author = users.get_current_user()
+def errorPage(self, **kw) :
+    self.response.out.write(options['errorPage'] % kw)
 
-    greeting.content = self.request.get('content')
-    greeting.put()
-    self.redirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
+def allowAdmins(self, onAdmin) :
+    user = users.get_current_user()
+    if user :
+        name = user.email()
+        if name in options['admins'] :
+            onAdmin(user)
+        else :
+            errorPage(self, error='Permission Denied for %s' % cgi.escape(name))
+    else :
+        self.redirect(users.create_login_url(self.request.uri))
 
+class AdminPage(webapp.RequestHandler) :
+    def get(self) :
+        allowAdmins(self, self.onAdmin)
+    def onAdmin(self, user) :
+        # XXX
+        wr = self.response.out.write
+        wr('<h1>Admin Page</h1>')
+        wr('<p>Welcome %s!' % (cgi.escape(user.email())))
+        wr('<p>src is: %s' % (self.request.remote_addr))
+        x = obfSrc(self.request.remote_addr)
+        wr('<p>obfSrc is: %x' % (x))
+        wr('<p>unIp is: %x' % (unIp(self.request.remote_addr)))
+
+class MainPage(webapp.RequestHandler) :
+    def get(self):
+        self.response.out.write(options['mainPage'])
+
+class TestForm(webapp.RequestHandler) :
+    def get(self) :
+        if not options['testForm'] :
+            errorPage(self, error='Disabled')
+            return
+        self.response.out.write('''<form action="/report" method="post">
+<br>OS:<input name="os" value="">
+<br>Phone:<input name="phone" value="">
+<br>Carrier:<input name="carrier" value="">
+<br>Features:<input name="features" value="">
+<br>Auth:<input name="auth" value="">
+<br><input type="submit" name="submit">''')
 
 application = webapp.WSGIApplication([
-  ('/', MainPage),
-  ('/sign', Guestbook)
-], debug=True)
+    ('/report', ReportPage),
+    ('/admin', AdminPage),
+    ('/test', TestForm),
+    ('/', MainPage),
+], debug=options['debug'])
 
 
 def main():
   run_wsgi_app(application)
-
 
 if __name__ == '__main__':
   main()
