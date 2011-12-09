@@ -13,10 +13,12 @@ public class CarrierIQTesterActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        Context c = getApplicationContext();        
+        //Test.all(c);
 
         long v = 0;
-        Context c = getApplicationContext();
-        for(Detectors d : Detectors.values()) {
+        for(Detect d : Detect.values()) {
             if(d.func.Func(c, d.arg1, d.arg2)) {
                 v |= d.flag;
             }
