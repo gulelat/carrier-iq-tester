@@ -34,6 +34,7 @@ VERIFIED_NONE, VERIFIED_NO, VERIFIED_YES = -1,0,1
 
 class Report(db.Model) :
     """A single report submitted from an app user."""
+    version = db.IntegerProperty()
     when = db.DateTimeProperty(auto_now_add=True)
     src = db.IntegerProperty() # anonymized IP address
     os = db.StringProperty()
@@ -77,6 +78,7 @@ class ReportPage(webapp.RequestHandler) :
     """
     def post(self) :
         try :
+            version = int(self.request.get('version'))
             features = int(self.request.get('features'))
         except ValueError :
             errorPage(self, error='Invalid Parameter')
@@ -84,6 +86,7 @@ class ReportPage(webapp.RequestHandler) :
 
         r = Report()
         r.src = obfSrc(self.request.remote_addr)
+        r.version = version
         r.os = self.request.get('os')
         r.phone = self.request.get('phone')
         r.carrier = self.request.get('carrier')
@@ -196,6 +199,7 @@ class TestForm(webapp.RequestHandler) :
             errorPage(self, error='Disabled')
             return
         self.response.out.write('''<form action="/report" method="post">
+<br>Version:<input name="version" value="0">
 <br>OS:<input name="os" value="">
 <br>Phone:<input name="phone" value="">
 <br>Carrier:<input name="carrier" value="">
