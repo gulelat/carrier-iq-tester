@@ -27,7 +27,11 @@ options = {
     'testForm': True,
     'verify_inline': True,
     'secret': 'no cheating, please',
-    'admins': ['tim.newsham@gmail.com'],
+    'admins': ['tim.newsham@gmail.com',
+                'alex@isecpartners.com',
+                'alex@stamos.org',
+                'andrew@becherer.org',
+                ],
 }
 
 VERIFIED_NONE, VERIFIED_NO, VERIFIED_YES = -1,0,1
