@@ -72,6 +72,7 @@ public class U {
             boolean found = false;
 
             if(fpat.matches("\\.\\*") && fpat.matches("/")) {
+Log.i(U.TAG, "split filename: " + fpat);
                 int idx = fpat.lastIndexOf("/");
                 String dir = fpat.substring(0, idx);
                 String fpat2 = fpat.substring(idx+1);
@@ -83,6 +84,7 @@ public class U {
                     }
                 }
             } else {
+Log.i(U.TAG, "dont split filename: " + fpat);
                 // no pattern, open file directly...
                 found = grep(fpat, pat);
                 if(found)
