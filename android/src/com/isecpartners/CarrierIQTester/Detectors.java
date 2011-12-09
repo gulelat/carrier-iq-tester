@@ -6,153 +6,83 @@ public enum Detectors {
      *
      * Note: do not change this list without good reason...
      * and when you do, you may have to bump the version.
-     * The ordering of this list is the order in which the
-     * bits in the features flag is defined.  Changing ordering
-     * will alter the meaning of features!
-     * Changing tests may require discarding of old data in
-     * the database, too. 
+     * Analysis will be affected by the meaning of these tests.
      *
      * A version number is included here and should probably
      * be adjusted when analysis options change.
      */
 
     // XXX should we add a score to these?
-    Detectors(findPackage, "com.carrieriq.iqagent");
-    Detectors(findPackage, "com.htc.android.iqagent");
-    Detectors(findPackage, "com.carrieriq.attrom");
-    Detectors(findPackage, "com.carrieriq.tmobile");
+    DETECT0(0, U.findPackage, "com.carrieriq.iqagent"),
+    DETECT1(1, U.findPackage, "com.htc.android.iqagent"),
+    DETECT2(2, U.findPackage, "com.carrieriq.attrom"),
+    DETECT3(3, U.findPackage, "com.carrieriq.tmobile"),
 
-    Detectors(matchFilename, "/dev/", "sdio_tty_ciq.*");
-    Detectors(matchFilename, "/dev/socket/", "iqbrd");
+    DETECT4(4, U.matchFilename, "/dev/", "sdio_tty_ciq.*"),
+    DETECT5(5, U.matchFilename, "/dev/socket/", "iqbrd"),
 
     // what about workarounds?  perhaps a better pattern is called for?
-    Detectors(matchFile, "/proc/kallsyms", "_ciq_");
+    DETECT6(6, U.matchFile, "/proc/kallsyms", "_ciq_"),
 
-    Detectors(matchDmesg, "iq.logging");
-    Detectors(matchDmesg, "iq.service");
-    Detectors(matchDmesg, "iq.cadet");
-    Detectors(matchDmesg, "iq.bridge");
-    Detectors(matchDmesg, "SDIO_CIQ");
-    Detectors(matchDmesg, "ttyCIQ");
-    Detectors(matchDmesg, "iqagent");
+    DETECT7(7, U.matchDmesg, "iq.logging"),
+    DETECT8(8, U.matchDmesg, "iq.service"),
+    DETECT9(9, U.matchDmesg, "iq.cadet"),
+    DETECT10(10, U.matchDmesg, "iq.bridge"),
+    DETECT11(11, U.matchDmesg, "SDIO_CIQ"),
+    DETECT12(12, U.matchDmesg, "ttyCIQ"),
+    DETECT13(13, U.matchDmesg, "iqagent"),
 
-    Detectors(matchLogcat, "AppWatcherCIQ");
-    Detectors(matchLogcat, "IQService");
-    Detectors(matchLogcat, "IQBridge");
-    Detectors(matchLogcat, "IQClient");
-    Detectors(matchLogcat, "IQ_METRIC");
-    Detectors(matchLogcat, "_CIQ");
-    Detectors(matchLogcat, "IQAgent");
-    Detectors(matchLogcat, "iqagent");
-    Detectors(matchLogcat, "KernelPanicCiqBroadcastReceiver");
-    Detectors(matchLogcat, "ToCIQ");
-    Detectors(matchLogcat, "submitAL34");
-    Detectors(matchLogcat, "AgentService_J");
-    Detectors(matchLogcat, "com.carrieriq.");
-    Detectors(matchLogcat, "com/carrieriq/");
-    Detectors(matchLogcat, ".iqd");
+    DETECT14(14, U.matchLogcat, "AppWatcherCIQ"),
+    DETECT15(15, U.matchLogcat, "IQService"),
+    DETECT16(16, U.matchLogcat, "IQBridge"),
+    DETECT17(17, U.matchLogcat, "IQClient"),
+    DETECT18(18, U.matchLogcat, "IQ_METRIC"),
+    DETECT19(19, U.matchLogcat, "_CIQ"),
+    DETECT20(20, U.matchLogcat, "IQAgent"),
+    DETECT21(21, U.matchLogcat, "iqagent"),
+    DETECT22(22, U.matchLogcat, "KernelPanicCiqBroadcastReceiver"),
+    DETECT23(23, U.matchLogcat, "ToCIQ"),
+    DETECT24(24, U.matchLogcat, "submitAL34"),
+    DETECT25(25, U.matchLogcat, "AgentService_J"),
+    DETECT26(26, U.matchLogcat, "com.carrieriq."),
+    DETECT27(27, U.matchLogcat, "com/carrieriq/"),
+    DETECT28(28, U.matchLogcat, ".iqd"),
 
-    Detectors(matchFile, "/etc/.*.txt", "enableCIQ");
+    DETECT29(29, U.matchFile, "/etc/.*.txt", "enableCIQ"),
 
-    Detectors(matchFilename, "/system/", "iqmsd");
-    Detectors(matchFilename, "/system/", "libiq_.*");
-    Detectors(matchFilename, "/system/", "iqbridged");
+    DETECT30(30, U.matchFilename, "/system/", "iqmsd"),
+    DETECT31(31, U.matchFilename, "/system/", "libiq_.*"),
+    DETECT32(32, U.matchFilename, "/system/", "iqbridged"),
 
-    Detectors(matchServices, "carrieriq");
+    DETECT33(33, U.matchService, "carrieriq"),
 
-    Detectors(matchProcess, "iqmsd");
-    Detectors(matchProcess, "iqbridged");
-    Detectors(matchProcess, "iqd");
+    DETECT34(34, U.matchProcess, "iqmsd"),
+    DETECT35(35, U.matchProcess, "iqbridged"),
+    DETECT36(36, U.matchProcess, "iqd"),
 
     // XXX should we instead just look for a file for this, like a jar?
-    Detectors(matchClass, "com.carrieriq.iqagent.service.receivers.BootCompletedReceiver");
-    Detectors(matchClass, "com.carrieriq.iqagent.IQService");
+    DETECT37(37, U.matchClass, "com.carrieriq.iqagent.service.receivers.BootCompletedReceiver"),
+    DETECT38(38, U.matchClass, "com.carrieriq.iqagent.IQService");
 
 
+    // --------------
     public static final long version = 0;
     static long nextFlag = 1;
     public final long flag;
-    public final DetectFunc func;
+    public final U.DetectFunc func;
     public final String arg1, arg2;
 
-    Detectors(DetectFunc func, String arg1, String arg2) {
-        this.flag = nextFlag;
-        nextFlag = nextFlag << 1;
+    Detectors(int n, U.DetectFunc func, String arg1, String arg2) {
+        this.flag = 1 << n;
         this.func = func;
         this.arg1 = arg1;
         this.arg2 = arg2;
     }
-    Detectors(DetectFunc func, String arg1) {
-        this.flag = nextFlag;
-        nextFlag = nextFlag << 1;
+    Detectors(int n, U.DetectFunc func, String arg1) {
+        this.flag = 1 << n;
         this.func = func;
         this.arg1 = arg1;
         this.arg2 = "";
     }
-
-    // The pains we must endure to use function pointers in java...
-    public Interface DetectFunc {
-        public bool Func(Context c, String arg1, String arg2);
-    }
-
-    static final DetectFunc matchFile = new DetectFunc() {
-        public bool Func(Context c, String fpat, String pat) {
-            // XXX split fpat into dir and pattern
-            // iterate over matching files, read file, match lines against pat
-        }
-    };
-
-    static final DetectFunc matchFilename = new DetectFunc() {
-        public bool Func(Context c, String dir, String pat) {
-            for(File f : new File(dir).listFiles()) {
-                if (f.getName().matches(pat)) {
-                    Log.i(TAG, "Found filename " + dir + f.getname());
-                } 
-            }
-            return false;
-        }
-    };
-
-    static final DetectFunc matchProcess = new DetectFunc() {
-        public bool Func(Context c, String fpat, String unused) {
-            // XXX list processes, match
-        }
-    };
-
-    static final DetectFunc findPackage = new DetectFunc() {
-        public bool Func(Context c, String pkg, String unused) {
-            try {
-                c.getPackageManager().getApplicationInfo(pkg, 0);
-                Log.i(TAG, "Found package " + pkg);
-                return true;
-            } catch(NameNotFoundException e) {
-                return false;
-            }
-        }
-    };
-
-    static final DetectFunc matchDmesg = new DetectFunc() {
-        public bool Func(Context c, String fpat, String unused) {
-            // XXX run dmesg, match lines...
-        }
-    };
-
-    static final DetectFunc matchLogcat = new DetectFunc() {
-        public bool Func(Context c, String fpat, String unused) {
-            // XXX 
-        }
-    };
-
-    static final DetectFunc matchService = new DetectFunc() {
-        public bool Func(Context c, String fpat, String unused) {
-            // XXX 
-        }
-    };
-
-    static final DetectFunc matchClass = new DetectFunc() {
-        public bool Func(Context c, String fpat, String unused) {
-            // XXX try to load class, report exceptions
-        }
-    };
 }
 
