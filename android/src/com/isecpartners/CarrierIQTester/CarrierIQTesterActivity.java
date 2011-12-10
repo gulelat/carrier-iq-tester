@@ -17,6 +17,7 @@ public class CarrierIQTesterActivity extends Activity {
         Context c = getApplicationContext();        
         //Test.all(c);
 
+        // XXX move details of this to detect class
         long v = 0;
         for(Detect d : Detect.values()) {
             if(d.func.Func(c, d.arg1, d.arg2)) {
@@ -24,5 +25,15 @@ public class CarrierIQTesterActivity extends Activity {
             }
         }
         Log.i(TAG, "computed flag: " + Long.toHexString(v));
+
+        // XXX
+        // send in a report
+        Report r = new Report();
+        r.version = Detect.version;
+        r.os = "dummy os";
+        r.phone = "dummy phone";
+        r.carrier = "dummy carrier";
+        r.features = v;
+        r.send();
     }
 }
