@@ -51,8 +51,7 @@ class Report(db.Model) :
 def verify(r) :
     def hash(s) :
         return hashlib.sha256(s).hexdigest()
-    # XXX find a good way to print out the when field for this...
-    auth = hash("secret=%s:when=%s:os=%r:phone=%r:carrier=%r:features=%d" % (options['secret'], r.when, r.os, r.phone, r.carrier, r.features))
+    auth = hash("secret=%s:version=%d:os=%r:phone=%r:carrier=%r:features=%d" % (options['secret'], r.version, r.os, r.phone, r.carrier, r.features))
     if r.auth == auth :
         r.verified = VERIFIED_YES
     else :
