@@ -50,13 +50,15 @@
       <th>Carrier</th>
       <th>OS</th>
       <th>Popularity</th>
+      <th>Reports</th>
       <th>Features</th></tr>
   {% for k, v in dat %}
-    {% for pop, feat in v %}
+    {% for pop, tot, feat in v %}
       <tr><td>{{ k.0 }}</td>
           <td>{{ k.1 }}</td>
           <td>{{ k.2 }}</td>
           <td>{{ pop }}</td>
+          <td>{{ tot }}</td>
           <td>{{ feat }}</td>
     {% endfor %}
   {% endfor %}

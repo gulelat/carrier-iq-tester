@@ -166,14 +166,15 @@ class StatPage(webapp.RequestHandler) :
 
             k = r.phone, r.carrier, r.os
             d = getWithAdd(dat, k, dict)
-            s = getWithAdd(d, r.features, set)
-            s.add(r.src)
+            s = getWithAdd(d, r.features, lambda : [set(), 0])
+            s[0].add(r.src)
+            s[1] += 1
 
         # post-process dat to get sorted popularity counts
         r = []
         for k in sorted(dat.keys()) :
             d = dat[k]
-            pops = [(len(s), k2) for k2,s in d.items()]
+            pops = [(len(s[0]), s[1], k2) for k2,s in d.items()]
             pops.sort(reverse=True)
             r.append((k, pops))
 
