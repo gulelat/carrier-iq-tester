@@ -38,58 +38,58 @@ public class U {
         return allFiles(dir, pat, new LinkedList<File>());
     }
 
-    public static boolean grep(String fn, String pat) {
+    public static String grep(String fn, String pat) {
         try {
             BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(fn)));
             String line;
             while((line = f.readLine()) != null) {
                 if(line.matches(pat))
-                    return true;
+                    return line;
             }
         } catch(Exception e) { // XXX more specific
             Log.e(U.TAG, "Error reading file: " + fn);
         }
-        return false;
+        return null;
     }
 
-    public static boolean grepCmd(String cmd, String pat) {
+    public static String grepCmd(String cmd, String pat) {
         try {
             Process p = Runtime.getRuntime().exec(cmd);
             BufferedReader f = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             while((line = f.readLine()) != null) {
                 if(line.matches(pat))
-                    return true;
+                    return line;
             }
         } catch (Exception e) { // XXX more specific
-            Log.e(U.TAG, "Error runnin cmd: " + cmd);
+            Log.e(U.TAG, "Error running cmd: " + cmd);
         }
-        return false;
+        return null;
     }
 
     public static final DetectFunc matchFile = new DetectFunc() {
         public boolean Func(Context c, String fpat, String pat) {
             String pat2 = ".*" + pat + ".*";
-            boolean found = false;
+            String found = null;
+            String fn;
 
             if(fpat.contains(".*") && fpat.contains("/")) {
                 int idx = fpat.lastIndexOf("/");
                 String dir = fpat.substring(0, idx);
                 String fpat2 = fpat.substring(idx+1);
                 for(File f : allFiles(dir, fpat2)) {
-                    String fn = f.getAbsolutePath();
-                    found = grep(fn, pat2);
-                    if(found) {
-                        Log.i(U.TAG, "Found " + pat2 + " in " + fn);
+                    fn = f.getAbsolutePath();
+                    String found = grep(fn, pat2);
+                    if(found != null)
                         break;
-                    }
                 }
             } else {
                 // no pattern, open file directly...
-                found = grep(fpat, pat2);
-                if(found)
-                    Log.i(U.TAG, "Found " + pat2 + " in " + fpat);
+                fn = fpat;
+                found = grep(fn, pat2);
             }
+            if(found != null) 
+                Log.i(U.TAG, "Found match for " + pat + " in " + fn + ": " + found);
             return found;
         }
     };
@@ -97,7 +97,7 @@ public class U {
     public static final DetectFunc matchFilename = new DetectFunc() {
         public boolean Func(Context c, String dir, String pat) {
             for(File f : allFiles(dir, pat)) {
-                Log.i(U.TAG, "Found filename " + dir + f.getAbsolutePath());
+                Log.i(U.TAG, "Found filename matching " + pat + ": " + f.getAbsolutePath());
                 return true;
             }
             return false;
@@ -118,8 +118,9 @@ public class U {
 
     public static final boolean grepCmdAndLog(String cmd, String pat, String logmsg) {
         String pat2 = ".*" + pat + ".*";
-        if(grepCmd(cmd, pat2)) {
-            Log.i(U.TAG, logmsg + pat);
+        String m = grepCmd(cmd, pat2);
+        if(m != null) {
+            Log.i(U.TAG, "Found " + logmsg + " matching " + pat + ": " + m);
             return true;
         }
         return false;
@@ -127,26 +128,26 @@ public class U {
 
     public static final DetectFunc matchProcess = new DetectFunc() {
         public boolean Func(Context c, String pat, String unused) {
-            return grepCmdAndLog("ps", pat, "Found process: ");
+            return grepCmdAndLog("ps", pat, "process");
         }
     };
 
 
     public static final DetectFunc matchDmesg = new DetectFunc() {
         public boolean Func(Context c, String pat, String unused) {
-            return grepCmdAndLog("dmesg", pat, "Found in dmesg: ");
+            return grepCmdAndLog("dmesg", pat, "dmesg");
         }
     };
 
     public static final DetectFunc matchLogcat = new DetectFunc() {
         public boolean Func(Context c, String pat, String unused) {
-            return grepCmdAndLog("logcat -d", pat, "Found in logcat: ");
+            return grepCmdAndLog("logcat -d", pat, "logcat");
         }
     };
 
     public static final DetectFunc matchService = new DetectFunc() {
         public boolean Func(Context c, String pat, String unused) {
-            return grepCmdAndLog("service list", pat, "Found service: ");
+            return grepCmdAndLog("service list", pat, "service");
         }
     };
 
