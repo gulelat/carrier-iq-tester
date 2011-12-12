@@ -41,7 +41,7 @@ public class Report {
     }
 
     void setAuth() {
-        String s = String.format("secret=%s:version=%d:os=\"%s\":phone=\"%s\":carrier=\"%s\":features=%d", secret, version, os, phone, carrier, features);
+        String s = String.format("secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d", secret, version, os, phone, carrier, features);
         try {
         	MessageDigest dig = MessageDigest.getInstance("SHA-256");
         	dig.update(s.getBytes());
