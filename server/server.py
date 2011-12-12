@@ -33,6 +33,7 @@ options = {
                 'alex@stamos.org',
                 'andrew@becherer.org',
                 'amandacrowell85@gmail.com',
+                'peter.eckersley@gmail.com',
                 ],
 }
 
