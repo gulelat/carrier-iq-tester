@@ -182,11 +182,17 @@ class StatPage(webapp.RequestHandler) :
             s[0].add(r.src)
             s[1] += 1
 
+        def unvec(x) :
+            l = [str(n) for n in xrange(64) if (x & (1L<<n))]
+            if not l :
+                return 'none'
+            return ','.join(l)
+
         # post-process dat to get sorted popularity counts
         r = []
         for k in sorted(dat.keys()) :
             d = dat[k]
-            pops = [(len(s[0]), s[1], k2) for k2,s in d.items()]
+            pops = [(len(s[0]), s[1], unvec(k2)) for k2,s in d.items()]
             pops.sort(reverse=True)
             r.append((k, pops))
 
