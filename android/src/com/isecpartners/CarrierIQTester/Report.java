@@ -19,6 +19,7 @@ import android.util.Log;
 public class Report {
 	static final String TAG = "Report";
     static final String reportUrl = "https://carrieriqtester.appspot.com/report"; // XXX resource
+    //static final String reportUrl = "http://10.200.200.110:8080/report"; // XXX testing
     static final String secret = "no cheating, please"; // XXX resource
 
     public long version;
@@ -70,7 +71,7 @@ public class Report {
         try {        
         	post.setEntity(new UrlEncodedFormEntity(ps));
             HttpResponse r = new DefaultHttpClient().execute(post);
-            Log.i(TAG, "POST submitted: " + r.getStatusLine().getStatusCode());
+            Log.i(TAG, "POST submitted to " + reportUrl + ": " + r.getStatusLine().getStatusCode());
             return r.getStatusLine().getStatusCode() == 200;
         } catch(ClientProtocolException e) {
             Log.e(TAG, "POST protocol error " + e);
