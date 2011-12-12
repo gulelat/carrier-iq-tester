@@ -28,6 +28,6 @@ public class CarrierIQTesterActivity extends Activity {
         // XXX
         // send in a report
         Report r = new Report(Detect.version, v);
-        r.send();
+        r.send(c);
     }
 }

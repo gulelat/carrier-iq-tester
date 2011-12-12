@@ -14,14 +14,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
 public class Report {
 	static final String TAG = "Report";
-    static final String reportUrl = "https://carrieriqtester.appspot.com/report"; // XXX resource
-    //static final String reportUrl = "http://10.200.200.110:8080/report"; // XXX testing
-    static final String secret = "no cheating, please"; // XXX resource
 
     public long version;
     public String os;
@@ -36,7 +34,6 @@ public class Report {
         this.phone = Build.MODEL;
         this.carrier = "";
         this.features = feat;
-        setAuth();
     }
 
     static String hex(byte[] bs) { // XXX move to utils
@@ -47,7 +44,8 @@ public class Report {
         return new String(sb);
     }
 
-    void setAuth() {
+    void setAuth(Context c) {
+        String secret = c.getResources().getString(R.string.secret);
         String s = String.format("secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d", secret, version, os, phone, carrier, features);
         try {
         	MessageDigest dig = MessageDigest.getInstance("SHA-256");
@@ -62,7 +60,9 @@ public class Report {
         l.add(new BasicNameValuePair(n, v));
     }
 
-    public boolean send() {
+    public boolean send(Context c) {
+        setAuth(c);
+
         LinkedList<NameValuePair> ps = new LinkedList<NameValuePair>();
         addPair(ps, "version", "" + version);
         addPair(ps, "os", os);
@@ -71,6 +71,7 @@ public class Report {
         addPair(ps, "features", "" + features);
         addPair(ps, "auth", auth);
 
+        String reportUrl = c.getResources().getString(R.string.reportUrl);
         HttpPost post = new HttpPost(reportUrl);
 
         try {        
