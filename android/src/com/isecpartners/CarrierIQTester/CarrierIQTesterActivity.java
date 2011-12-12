@@ -21,20 +21,13 @@ public class CarrierIQTesterActivity extends Activity {
         // XXX move details of this to detect class
         long v = 0;
         for(Detect d : Detect.values()) {
-            if(d.func.Func(c, d.arg1, d.arg2)) {
-                v |= d.flag;
-            }
+            v |= d.test(c);
         }
         Log.i(TAG, "computed flag: " + Long.toHexString(v));
         
         // XXX
         // send in a report
-        Report r = new Report();
-        r.version = Detect.version;
-        r.os = Build.VERSION.CODENAME;
-        r.phone = Build.MODEL;
-        r.carrier = Build.BRAND;
-        r.features = v;
+        Report r = new Report(Detect.version, v);
         r.send();
     }
 }

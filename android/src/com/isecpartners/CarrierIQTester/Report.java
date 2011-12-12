@@ -14,12 +14,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 
+import android.os.Build;
 import android.util.Log;
 
 public class Report {
 	static final String TAG = "Report";
-    static final String reportUrl = "https://carrieriqtester.appspot.com/report"; // XXX resource
-    //static final String reportUrl = "http://10.200.200.110:8080/report"; // XXX testing
+    //static final String reportUrl = "https://carrieriqtester.appspot.com/report"; // XXX resource
+    static final String reportUrl = "http://10.200.200.110:8080/report"; // XXX testing
     static final String secret = "no cheating, please"; // XXX resource
 
     public long version;
@@ -29,7 +30,13 @@ public class Report {
     public long features;
     public String auth;
 
-    public Report() {
+    public Report(long version, long feat) {
+        this.version = version;
+        this.os = "Android " + Build.VERSION.RELEASE;
+        this.phone = Build.MODEL;
+        this.carrier = "";
+        this.features = feat;
+        setAuth();
     }
 
     static String hex(byte[] bs) { // XXX move to utils
@@ -56,8 +63,6 @@ public class Report {
     }
 
     public boolean send() {
-        setAuth();
-
         LinkedList<NameValuePair> ps = new LinkedList<NameValuePair>();
         addPair(ps, "version", "" + version);
         addPair(ps, "os", os);

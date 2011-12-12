@@ -1,5 +1,8 @@
 package com.isecpartners.CarrierIQTester;
 
+import android.content.Context;
+import android.util.Log;
+
 public enum Detect {
     /*
      * Our list of detectors.
@@ -67,21 +70,29 @@ public enum Detect {
 
     // ---------------------------------
     public static final long version = 0;
-    public final long flag;
-    public final U.DetectFunc func;
-    public final String arg1, arg2;
+    final int n;
+    final U.DetectFunc func;
+    final String arg1, arg2;
 
     Detect(int n, U.DetectFunc func, String arg1, String arg2) {
-        this.flag = 1L << n;
+        this.n = n;
         this.func = func;
         this.arg1 = arg1;
         this.arg2 = arg2;
     }
     Detect(int n, U.DetectFunc func, String arg1) {
-        this.flag = 1L << n;
+        this.n = n;
         this.func = func;
         this.arg1 = arg1;
         this.arg2 = "";
+    }
+
+    public long test(Context c) {
+        long start = System.currentTimeMillis();
+        long ret = func.Func(c, arg1, arg2) ? (1L << n) : 0;
+        double sec = (System.currentTimeMillis() - start) / 1000.0;
+        Log.i("DETECT", "test " + n + " returned " + Long.toHexString(ret) + " in " + sec);
+        return ret;
     }
 }
 
