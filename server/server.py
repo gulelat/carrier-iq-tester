@@ -32,6 +32,7 @@ options = {
                 'alex@isecpartners.com',
                 'alex@stamos.org',
                 'andrew@becherer.org',
+                'amandacrowell85@gmail.com',
                 ],
 }
 
