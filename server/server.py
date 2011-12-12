@@ -24,6 +24,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 options = {
     'debug': True,
+    'showForged': True,
     'testForm': True,
     'verify_inline': True,
     'secret': 'no cheating, please',
@@ -51,7 +52,10 @@ class Report(db.Model) :
 def verify(r) :
     def hash(s) :
         return hashlib.sha256(s).hexdigest()
-    auth = hash("secret=%s:version=%d:os=%r:phone=%r:carrier=%r:features=%d" % (options['secret'], r.version, r.os, r.phone, r.carrier, r.features))
+    s = "secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d" % (options['secret'], r.version, r.os, r.phone, r.carrier, r.features)
+    auth = hash(s)
+    import sys
+    print >>sys.stderr, "auth string", s, "hash", auth
     if r.auth == auth :
         r.verified = VERIFIED_YES
     else :
@@ -156,10 +160,18 @@ class StatPage(webapp.RequestHandler) :
         dat = dict()
         for r in Report.all() :
             cnt += 1
-            if r.verified == VERIFIED_YES :
-                verified += 1
             if r.verified == VERIFIED_NO :
                 forged += 1
+            if r.verified == VERIFIED_YES :
+                verified += 1
+
+            if r.verified == VERIFIED_NO :
+                if not options['showForged'] :
+                    continue
+                r.phone = "FORGED:" + r.phone
+                r.carrier = "FORGED:" + r.carrier
+                r.os = "FORGED:" + r.os
+
             phones.add(r.phone)
             carriers.add(r.carrier)
             oses.add(r.os)
