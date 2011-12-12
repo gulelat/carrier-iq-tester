@@ -3,3 +3,5 @@
 *.dex
 *.apk
 *.ap_
+android/gen/
+android/bin/
