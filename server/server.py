@@ -54,8 +54,6 @@ def verify(r) :
         return hashlib.sha256(s).hexdigest()
     s = "secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d" % (options['secret'], r.version, r.os, r.phone, r.carrier, r.features)
     auth = hash(s)
-    import sys
-    print >>sys.stderr, "auth string", s, "hash", auth
     if r.auth == auth :
         r.verified = VERIFIED_YES
     else :
