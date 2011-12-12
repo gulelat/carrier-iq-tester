@@ -71,7 +71,7 @@ public class U {
         public boolean Func(Context c, String fpat, String pat) {
             String pat2 = ".*" + pat + ".*";
             String found = null;
-            String fn;
+            String fn = null;
 
             if(fpat.contains(".*") && fpat.contains("/")) {
                 int idx = fpat.lastIndexOf("/");
@@ -79,7 +79,7 @@ public class U {
                 String fpat2 = fpat.substring(idx+1);
                 for(File f : allFiles(dir, fpat2)) {
                     fn = f.getAbsolutePath();
-                    String found = grep(fn, pat2);
+                    found = grep(fn, pat2);
                     if(found != null)
                         break;
                 }
@@ -90,7 +90,7 @@ public class U {
             }
             if(found != null) 
                 Log.i(U.TAG, "Found match for " + pat + " in " + fn + ": " + found);
-            return found;
+            return (found != null);
         }
     };
 
