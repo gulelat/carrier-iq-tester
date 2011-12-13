@@ -16,6 +16,7 @@ import org.apache.http.NameValuePair;
 
 import android.content.Context;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class Report {
@@ -28,11 +29,15 @@ public class Report {
     public long features;
     public String auth;
 
-    public Report(long version, long feat) {
+    public Report(Context ctx, long version, long feat) {
         this.version = version;
         this.os = "Android " + Build.VERSION.RELEASE;
         this.phone = Build.MODEL;
-        this.carrier = System.getProperty("gsm.sim.carrier.alpha", "unknown");
+    	TelephonyManager telephonyManager =((TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE));
+    	this.carrier = telephonyManager.getSimOperatorName();
+    	if(this.carrier.length() == 0)
+    		this.carrier = "none";
+        
         this.features = feat;
     }
 

@@ -38,7 +38,7 @@ public class CarrierIQTesterActivity extends Activity {
             // XXX this should be user initiated after analysis completes!
             if(isCancelled())
             	return null;
-            Report r = new Report(Detect.version, v);
+            Report r = new Report(c, Detect.version, v);
             r.send(c);
             publishProgress((int)(prog++ * pfact));
 			return v;
