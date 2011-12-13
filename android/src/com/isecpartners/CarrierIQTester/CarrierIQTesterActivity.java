@@ -1,7 +1,5 @@
 package com.isecpartners.CarrierIQTester;
 
-import java.util.concurrent.ExecutionException;
-
 import android.app.Activity;
 
 import android.os.Bundle;
@@ -13,19 +11,22 @@ import android.os.AsyncTask;
 public class CarrierIQTesterActivity extends Activity {
     public static final String TAG = "CarrierIQTesterActivity";
 
-    boolean done = false;
-    Analysis aTask = null;
+    boolean analysisDone = false;
+    long analysisResult;
+    AnalysisTask aTask = null;
+    ReportTask rTask = null;
     TextView txt = null;
     
-    class Analysis extends AsyncTask<Void,Integer,Long> {
+    class AnalysisTask extends AsyncTask<Void,Integer,Long> {
     	protected Long doInBackground(Void... args) {
             Context c = getApplicationContext();        
 
-            double pfact = 100.0 / (Detect.values().length + 1);
+            double pfact = 100.0 / Detect.values().length;
             
             // run all detectors
             long v = 0;
             int prog = 0;
+            publishProgress((int)(prog++ * pfact));
             for(Detect d : Detect.values()) {
             	if(isCancelled())
             		return null;
@@ -33,58 +34,81 @@ public class CarrierIQTesterActivity extends Activity {
                 publishProgress((int)(prog++ * pfact));
             }
             Log.i(TAG, "computed flag: " + Long.toHexString(v));
-            
-            // report results
-            // XXX this should be user initiated after analysis completes!
-            if(isCancelled())
-            	return null;
-            Report r = new Report(c, Detect.version, v);
-            r.send(c);
-            publishProgress((int)(prog++ * pfact));
-			return v;
+            return v;
     	}
     	
     	protected void onProgressUpdate(Integer... progress) {
-    	
     	}
+
     	protected void onPostExecute(Long res) {
-    		done = true;
+    		analysisDone = true;
     		showResult();
     	}
     }
     
-    void showResult() {
-    	if(done && aTask != null) {
-    		try {
-				txt.setText("Detection done.  Result: " + aTask.get());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
+    class ReportTask extends AsyncTask<Long,Integer,Void> {
+    	protected Void doInBackground(Long... vs) {
+            Context c = getApplicationContext();        
+
+            publishProgress(0);
+            Report r = new Report(c, Detect.version, vs[0]);
+            // XXX some sort of indication of success or failure?
+            r.send(c);
+            publishProgress(100);
+			return null;
     	}
+    	
+    	protected void onProgressUpdate(Integer... progress) {
+    	}
+
+    	protected void onPostExecute(Long res) {
+            // XXX show a popup saying it was sent?
+            // XXX we should have an indicator saying how many reports
+            // have been submitted from this app.
+    	}
+    }
+    
+    boolean showResult() {
+    	if(analysisDone) {
+            txt.setText("Detection done.  Result: " + analysisResult);
+            return true;
+        }
+        return false;
     }
     
     /* start or restart the analysis if necessary, else just show the prior result. */
     void startAnalysis() {
-    	if(done) {
-    		showResult();
-    		return;
-    	}
+        if(showResult())
+            return;
     	
     	if(aTask != null)
     		return;
     	txt.setText("Analyzing...");
-    	aTask = new Analysis();
+    	aTask = new AnalysisTask();
     	aTask.execute();
     }
     
     /* stop the analysis if started and not yet finished. */
     void stopAnalysis() {
-    	if(aTask != null && !done) {
+    	if(aTask != null && !analysisDone) {
     		aTask.cancel(true);
     		aTask = null;
     	}
+    }
+
+    void restartAnalysis() {
+        if(!analysisDone)
+            return;
+        analysisDone = false;
+        stopAnalysis();
+        startAnalysis();
+    }
+
+    void reportResults() {
+        if(!analysisDone)
+            return;
+        rTask = new ReportTask();
+        rTask.execute(analysisResult);
     }
     
     /** Called when the activity is first created. */
