@@ -31,7 +31,7 @@
         android:gravity="bottom" >
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/reportButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.34"
@@ -40,7 +40,7 @@
             android:onClick="reportResults" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/analyzeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.34"

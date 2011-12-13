@@ -21,7 +21,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     ReportTask rTask = null;
     TextView txt = null;
     TextView log = null;
-    Button sendButton = null;
+    Button analyzeButton = null;
     Button reportButton = null;
    
     class AnalysisTask extends AsyncTask<Void,Integer,Long> implements U.LogFunc {
@@ -58,7 +58,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
 
     	protected void onPostExecute(Long res) {
     		analysisDone = true;
-    		sendButton.setEnabled(true);
+    		analyzeButton.setEnabled(true);
     		reportButton.setEnabled(true);
     		showResult();
     	}
@@ -79,7 +79,9 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     	protected void onProgressUpdate(Integer... progress) {
     	}
 
-    	protected void onPostExecute(Long res) {
+    	protected void onPostExecute(Void res) {
+    		reportButton.setEnabled(true);
+    		
             // XXX show a popup saying it was sent?
             // XXX we should have an indicator saying how many reports
             // have been submitted from this app.
@@ -101,7 +103,10 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     	
     	if(aTask != null)
     		return;
+ 
+   		analyzeButton.setEnabled(false);
     	txt.setText("Analyzing...");
+    	log.setText("");
     	aTask = new AnalysisTask();
     	aTask.execute();
     }
@@ -118,6 +123,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
         if(!analysisDone)
             return;
         analysisDone = false;
+        reportButton.setEnabled(false);
         stopAnalysis();
         startAnalysis();
     }
@@ -125,6 +131,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     void reportResults() {
         if(!analysisDone)
             return;
+        reportButton.setEnabled(false);
         rTask = new ReportTask();
         rTask.execute(analysisResult);
     }
@@ -140,17 +147,17 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
         setContentView(R.layout.main);
         txt = (TextView)findViewById(R.id.txt);
         log = (TextView)findViewById(R.id.log);
-        sendButton = (Button)findViewById(R.id.button1);
-        reportButton = (Button)findViewById(R.id.button2);
+        analyzeButton = (Button)findViewById(R.id.analyzeButton);
+        reportButton = (Button)findViewById(R.id.reportButton);
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        analyzeButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View arg0) {
-				reportResults();
+				restartAnalysis();
 			}
 		});
         reportButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				restartAnalysis();
+				reportResults();
 			}
 		});
     }
