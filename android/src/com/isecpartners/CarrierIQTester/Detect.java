@@ -1,7 +1,6 @@
 package com.isecpartners.CarrierIQTester;
 
 import android.content.Context;
-import android.util.Log;
 
 public enum Detect {
     /*
@@ -89,11 +88,11 @@ public enum Detect {
         this.arg2 = "";
     }
 
-    public long test(Context c) {
+    public long test(Context c, U.LogFunc l) {
         long start = System.currentTimeMillis();
-        long ret = func.Func(c, arg1, arg2) ? (1L << n) : 0;
+        long ret = func.Func(c, l, arg1, arg2) ? (1L << n) : 0;
         double sec = (System.currentTimeMillis() - start) / 1000.0;
-        Log.i("DETECT", "test " + n + " returned " + Long.toHexString(ret) + " in " + sec);
+        l.log("test " + n + " returned " + Long.toHexString(ret) + " in " + sec + "\n");
         return ret;
     }
 }

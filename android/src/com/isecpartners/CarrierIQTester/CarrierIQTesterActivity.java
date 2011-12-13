@@ -1,5 +1,7 @@
 package com.isecpartners.CarrierIQTester;
 
+import java.util.LinkedList;
+
 import android.app.Activity;
 
 import android.os.Bundle;
@@ -8,7 +10,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.os.AsyncTask;
 
-public class CarrierIQTesterActivity extends Activity {
+public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     public static final String TAG = "CarrierIQTesterActivity";
 
     boolean analysisDone = false;
@@ -16,8 +18,15 @@ public class CarrierIQTesterActivity extends Activity {
     AnalysisTask aTask = null;
     ReportTask rTask = null;
     TextView txt = null;
+    TextView log = null;
     
-    class AnalysisTask extends AsyncTask<Void,Integer,Long> {
+    class AnalysisTask extends AsyncTask<Void,Integer,Long> implements U.LogFunc {
+    	LinkedList<String> tmpLog = new LinkedList<String>();
+    	
+    	public synchronized void log(String s) {
+    		tmpLog.add(s);
+    	}
+    	
     	protected Long doInBackground(Void... args) {
             Context c = getApplicationContext();        
 
@@ -30,14 +39,17 @@ public class CarrierIQTesterActivity extends Activity {
             for(Detect d : Detect.values()) {
             	if(isCancelled())
             		return null;
-                v |= d.test(c);
+                v |= d.test(c, this);
                 publishProgress((int)(prog++ * pfact));
             }
             Log.i(TAG, "computed flag: " + Long.toHexString(v));
             return v;
     	}
     	
-    	protected void onProgressUpdate(Integer... progress) {
+    	protected synchronized void onProgressUpdate(Integer... progress) {
+    		for(String s : tmpLog)
+    			CarrierIQTesterActivity.this.log(s);
+    		tmpLog.clear();
     	}
 
     	protected void onPostExecute(Long res) {
@@ -110,6 +122,10 @@ public class CarrierIQTesterActivity extends Activity {
         rTask = new ReportTask();
         rTask.execute(analysisResult);
     }
+
+    public void log(String s) {
+    	log.append(s);
+    }
     
     /** Called when the activity is first created. */
     @Override
@@ -117,6 +133,7 @@ public class CarrierIQTesterActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         txt = (TextView)findViewById(R.id.txt);
+        log = (TextView)findViewById(R.id.log);
     }
 
 	@Override

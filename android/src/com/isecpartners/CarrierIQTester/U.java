@@ -16,7 +16,11 @@ public class U {
 
     // The pains we must endure to use function pointers in java...
     public interface DetectFunc {
-        public boolean Func(Context c, String arg1, String arg2);
+        public boolean Func(Context c, LogFunc l, String arg1, String arg2);
+    };
+
+    public interface LogFunc {
+        public void log(String s);
     };
 
     public static LinkedList<File> allFiles(String dir, String pat, LinkedList<File> l) {
@@ -68,7 +72,7 @@ public class U {
     }
 
     public static final DetectFunc matchFile = new DetectFunc() {
-        public boolean Func(Context c, String fpat, String pat) {
+        public boolean Func(Context c, LogFunc l, String fpat, String pat) {
             String pat2 = ".*" + pat + ".*";
             String found = null;
             String fn = null;
@@ -95,7 +99,7 @@ public class U {
     };
 
     public static final DetectFunc matchFilename = new DetectFunc() {
-        public boolean Func(Context c, String dir, String pat) {
+        public boolean Func(Context c, LogFunc l, String dir, String pat) {
             for(File f : allFiles(dir, pat)) {
                 Log.i(U.TAG, "Found filename matching " + pat + ": " + f.getAbsolutePath());
                 return true;
@@ -105,7 +109,7 @@ public class U {
     };
 
     public static final DetectFunc findPackage = new DetectFunc() {
-        public boolean Func(Context c, String pkg, String unused) {
+        public boolean Func(Context c, LogFunc l, String pkg, String unused) {
             try {
                 c.getPackageManager().getApplicationInfo(pkg, 0);
                 Log.i(U.TAG, "Found package " + pkg);
@@ -127,32 +131,32 @@ public class U {
     }
 
     public static final DetectFunc matchProcess = new DetectFunc() {
-        public boolean Func(Context c, String pat, String unused) {
+        public boolean Func(Context c, LogFunc l, String pat, String unused) {
             return grepCmdAndLog("ps", pat, "process");
         }
     };
 
 
     public static final DetectFunc matchDmesg = new DetectFunc() {
-        public boolean Func(Context c, String pat, String unused) {
+        public boolean Func(Context c, LogFunc l, String pat, String unused) {
             return grepCmdAndLog("dmesg", pat, "dmesg");
         }
     };
 
     public static final DetectFunc matchLogcat = new DetectFunc() {
-        public boolean Func(Context c, String pat, String unused) {
+        public boolean Func(Context c, LogFunc l, String pat, String unused) {
             return grepCmdAndLog("logcat -d", pat, "logcat");
         }
     };
 
     public static final DetectFunc matchService = new DetectFunc() {
-        public boolean Func(Context c, String pat, String unused) {
+        public boolean Func(Context c, LogFunc l, String pat, String unused) {
             return grepCmdAndLog("service list", pat, "service");
         }
     };
 
     public static final DetectFunc matchClass = new DetectFunc() {
-        public boolean Func(Context c, String klass, String unused) {
+        public boolean Func(Context c, LogFunc l, String klass, String unused) {
             try {
                 Class.forName(klass);
                 Log.i(U.TAG, "Found class: " + klass);

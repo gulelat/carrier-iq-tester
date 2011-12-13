@@ -6,8 +6,14 @@ import android.util.Log;
 public class Test {
     public static final String TAG = "Test";
 
+    public static U.LogFunc log = new U.LogFunc() {
+        public void log(String s) {
+            Log.i(Test.TAG + "-Log:", s);
+        }
+    };
+
     public static void detect(Context c, String name, U.DetectFunc f, String arg1, String arg2) {
-        boolean res = f.Func(c, arg1, arg2);
+        boolean res = f.Func(c, log, arg1, arg2);
         Log.i(Test.TAG, name + " " + arg1 + " " + arg2 + " -> " + res);
     }
     public static void detect(Context c, String name, U.DetectFunc f, String arg1) {
