@@ -34,7 +34,7 @@ options = {
                 'andrew@becherer.org',
                 'amandacrowell85@gmail.com',
                 'peter.eckersley@gmail.com',
-                'jesseburns@gmail.com',
+                'jesse.burns@gmail.com',
                 ],
 }
 
