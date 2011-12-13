@@ -1,5 +1,6 @@
 - detect services by enumerating packages instead of external command
 - make the status line (ie "analyzing...") more prominent.. perhaps using something other than a text view, or by having a divider show up
+	-- done, modify the the value of x in <x>dip to make it larger or smaller, or if you know a better way, then do that.  I just found this online ~Amanda
 - tweaking and cleaning up analysis (might be better to list all packages and match a few patterns than looking for some specific package names)
 - any other analysis tweaks
 - any ideas for making the gui more pleasant
