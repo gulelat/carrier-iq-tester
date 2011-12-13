@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.os.AsyncTask;
 
-public class CarrierIQTesterActivity extends Activity {
+public class CarrierIQTesterActivity extends Activity{
+	
     public static final String TAG = "CarrierIQTesterActivity";
 
     boolean analysisDone = false;
@@ -17,6 +19,9 @@ public class CarrierIQTesterActivity extends Activity {
     AnalysisTask aTask = null;
     ReportTask rTask = null;
     TextView txt = null;
+    Button sendButton = null;
+    Button reportButton = null;
+   
     
     class AnalysisTask extends AsyncTask<Void,Integer,Long> {
     	protected Long doInBackground(Void... args) {
@@ -43,10 +48,8 @@ public class CarrierIQTesterActivity extends Activity {
 
     	protected void onPostExecute(Long res) {
     		analysisDone = true;
-    		Button b1 = (Button) findViewById(R.id.button1);
-    		Button b2 = (Button) findViewById(R.id.button2);
-    		b1.setEnabled(true);
-    		b2.setEnabled(true);
+    		sendButton.setEnabled(true);
+    		reportButton.setEnabled(true);
     		showResult();
     	}
     }
@@ -122,6 +125,22 @@ public class CarrierIQTesterActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         txt = (TextView)findViewById(R.id.txt);
+        sendButton = (Button)findViewById(R.id.button1);
+        reportButton = (Button)findViewById(R.id.button2);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+			
+			public void onClick(View arg0) {
+				reportResults();
+				
+			}
+		});
+        reportButton.setOnClickListener(new View.OnClickListener() {
+			
+			public void onClick(View v) {
+				restartAnalysis();
+				
+			}
+		});
     }
 
 	@Override
