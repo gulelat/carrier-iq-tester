@@ -8,13 +8,14 @@
         android:id="@+id/txt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="10"
+        android:gravity="top"
         android:text="@string/hello" />
         
     <ScrollView
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-    	android:layout_weight="5">
+    	android:layout_weight="1" >
     	<TextView
 	    	android:id="@+id/log"
 	    	android:layout_width="fill_parent"
@@ -27,7 +28,8 @@
         android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" 
-        android:layout_weight="1">
+        android:layout_weight="10"
+        android:gravity="bottom">
 
         <Button
             android:id="@+id/button1"
