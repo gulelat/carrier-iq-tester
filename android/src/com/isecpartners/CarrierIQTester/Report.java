@@ -32,7 +32,7 @@ public class Report {
         this.version = version;
         this.os = "Android " + Build.VERSION.RELEASE;
         this.phone = Build.MODEL;
-        this.carrier = "";
+        this.carrier = System.getProperty("gsm.sim.carrier.alpha", "unknown");
         this.features = feat;
     }
 
