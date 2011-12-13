@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.os.AsyncTask;
 
@@ -42,6 +43,10 @@ public class CarrierIQTesterActivity extends Activity {
 
     	protected void onPostExecute(Long res) {
     		analysisDone = true;
+    		Button b1 = (Button) findViewById(R.id.button1);
+    		Button b2 = (Button) findViewById(R.id.button2);
+    		b1.setEnabled(true);
+    		b2.setEnabled(true);
     		showResult();
     	}
     }
