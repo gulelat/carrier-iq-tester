@@ -6,6 +6,8 @@ import android.util.Log;
 public enum Detect {
     /*
      * Our list of detectors.
+     * Credit where its due, this is based heavily on the code at
+     * https://github.com/project-voodoo/simple_carrieriq_detector_app
      *
      * Note: do not change this list without good reason...
      * and when you do, you may have to bump the version.
