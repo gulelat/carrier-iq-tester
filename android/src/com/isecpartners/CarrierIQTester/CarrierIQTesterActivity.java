@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.os.AsyncTask;
 
 public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
@@ -81,8 +82,8 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
 
     	protected void onPostExecute(Void res) {
     		reportButton.setEnabled(true);
+    		toast("Report sent. Thank you!");
     		
-            // XXX show a popup saying it was sent?
             // XXX we should have an indicator saying how many reports
             // have been submitted from this app.
     	}
@@ -138,6 +139,10 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
 
     public void log(String s) {
     	log.append(s);
+    }
+    
+    public void toast(String msg) {
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
     
     /** Called when the activity is first created. */
