@@ -34,14 +34,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.34"
-            android:text="@string/buttonText" />
+            android:enabled="false"
+            android:text="@string/buttonText"
+            android:onClick="reportResults" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.34"
-            android:text="@string/buttonReanalyzeText" />
+            android:enabled="false"
+            android:text="@string/buttonReanalyzeText" 
+            android:onClick="restartAnalysis"/>
 
     </LinearLayout>
 

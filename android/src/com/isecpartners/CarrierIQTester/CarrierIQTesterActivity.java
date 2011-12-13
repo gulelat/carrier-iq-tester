@@ -7,6 +7,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.os.AsyncTask;
 
@@ -19,7 +21,9 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     ReportTask rTask = null;
     TextView txt = null;
     TextView log = null;
-    
+    Button sendButton = null;
+    Button reportButton = null;
+   
     class AnalysisTask extends AsyncTask<Void,Integer,Long> implements U.LogFunc {
     	LinkedList<String> tmpLog = new LinkedList<String>();
     	
@@ -54,6 +58,8 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
 
     	protected void onPostExecute(Long res) {
     		analysisDone = true;
+    		sendButton.setEnabled(true);
+    		reportButton.setEnabled(true);
     		showResult();
     	}
     }
@@ -134,6 +140,19 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
         setContentView(R.layout.main);
         txt = (TextView)findViewById(R.id.txt);
         log = (TextView)findViewById(R.id.log);
+        sendButton = (Button)findViewById(R.id.button1);
+        reportButton = (Button)findViewById(R.id.button2);
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View arg0) {
+				reportResults();
+			}
+		});
+        reportButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				restartAnalysis();
+			}
+		});
     }
 
 	@Override
