@@ -4,4 +4,6 @@
     <string name="app_name">CarrierIQTester</string>
     <string name="reportUrl">https://carrieriqtester.appspot.com/report</string>
     <string name="secret">no cheating, please</string>
+    <string name="buttonText">Send Results</string>
+    <string name="buttonReanalyzeText">Re-Analyze</string>
 </resources>
