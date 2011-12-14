@@ -28,8 +28,9 @@ public class Report {
     public String carrier;
     public long features;
     public String auth;
+    public String log;
 
-    public Report(Context ctx, long version, long feat) {
+    public Report(Context ctx, long version, long feat, String log) {
         this.version = version;
         this.os = "Android " + Build.VERSION.RELEASE;
         this.phone = Build.MODEL;
@@ -39,6 +40,7 @@ public class Report {
     		this.carrier = "none";
         
         this.features = feat;
+        this.log = log;
     }
 
     static String hex(byte[] bs) { // XXX move to utils
@@ -51,7 +53,7 @@ public class Report {
 
     void setAuth(Context c) {
         String secret = c.getResources().getString(R.string.secret);
-        String s = String.format("secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d", secret, version, os, phone, carrier, features);
+        String s = String.format("secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d:log=%s", secret, version, os, phone, carrier, features, log);
         try {
         	MessageDigest dig = MessageDigest.getInstance("SHA-256");
         	dig.update(s.getBytes());
@@ -74,6 +76,7 @@ public class Report {
         addPair(ps, "phone", phone);
         addPair(ps, "carrier", carrier);
         addPair(ps, "features", "" + features);
+        addPair(ps, "log", log);
         addPair(ps, "auth", auth);
 
         String reportUrl = c.getResources().getString(R.string.reportUrl);

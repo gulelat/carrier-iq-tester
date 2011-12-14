@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     public static final String TAG = "CarrierIQTesterActivity";
 
+    StringBuilder analysisLog = new StringBuilder();
     boolean analysisDone = false;
     long analysisResult;
     AnalysisTask aTask = null;
@@ -65,12 +66,12 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     	}
     }
     
-    class ReportTask extends AsyncTask<Long,Integer,Void> {
-    	protected Void doInBackground(Long... vs) {
+    class ReportTask extends AsyncTask<Report,Integer,Void> {
+    	protected Void doInBackground(Report... vs) {
             Context c = getApplicationContext();        
 
             publishProgress(0);
-            Report r = new Report(c, Detect.version, vs[0]);
+            Report r = vs[0];
             // XXX some sort of indication of success or failure?
             r.send(c);
             publishProgress(100);
@@ -108,6 +109,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
    		analyzeButton.setEnabled(false);
     	txt.setText("Analyzing...");
     	log.setText("");
+    	analysisLog.setLength(0);
     	aTask = new AnalysisTask();
     	aTask.execute();
     }
@@ -134,11 +136,14 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
             return;
         reportButton.setEnabled(false);
         rTask = new ReportTask();
-        rTask.execute(analysisResult);
+        Context c = getApplicationContext();
+        rTask.execute(new Report(c, Detect.version, analysisResult, analysisLog.toString()));
+
     }
 
     public void log(String s) {
     	log.append(s);
+    	analysisLog.append(s);
     }
     
     public void toast(String msg) {
