@@ -1,6 +1,7 @@
 package com.isecpartners.CarrierIQTester;
 
 import android.content.Context;
+import android.util.Log;
 
 public enum Detect {
     /*
@@ -90,12 +91,16 @@ public enum Detect {
 
     public long test(Context c, U.LogFunc l) {
         long start = System.currentTimeMillis();
-        l.log("Running test " + n + "\n");
-        long ret = func.Func(c, l, arg1, arg2) ? (1L << n) : 0;
+        boolean res = func.Func(c, l, arg1, arg2);
         double sec = (System.currentTimeMillis() - start) / 1000.0;
-        l.log("test " + n + " returned " + Long.toHexString(ret) + " in " + sec + "\n");
+
+        Log.i("DETECT", "test " + n + " returned " + res + " in " + sec + "\n");
+        if(res)
+            l.log("test " + n + " found evidence of CIQ\n");
+        else
+            l.log("test " + n + " found nothing\n");
         
-        return ret;
+        return res ? (1L << n) : 0;
     }
 }
 
