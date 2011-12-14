@@ -58,6 +58,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     	}
 
     	protected void onPostExecute(Long res) {
+    		analysisResult = res;
     		analysisDone = true;
     		analyzeButton.setEnabled(true);
     		reportButton.setEnabled(true);
