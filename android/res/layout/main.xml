@@ -15,8 +15,8 @@
         android:layout_width="fill_parent"
         android:layout_height="4dip"
         android:scaleType="fitXY"
-        android:src="@android:drawable/divider_horizontal_dark"
-        android:tint="#ffff00"
+        android:src="@android:drawable/divider_horizontal_bright"
+        android:tint="#6495ED"
          />
         
     <ScrollView
