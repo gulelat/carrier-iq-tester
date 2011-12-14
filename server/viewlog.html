@@ -1,0 +1,27 @@
+<html>
+<head><title>View Logs</title></head>
+<body>
+<h1>View Logs</h1>
+Choose a log to view by Report ID.<br>
+
+<form action="/admin/viewlog" method="get">
+  ID: 
+  <input name="n" type="text" value="{{ id }}"> 
+  <input type="submit" name="View"><br>
+</form>
+
+{% if found %}
+  <h1>Log for {{ id }}</h1>
+  {% if data %}
+    {% autoescape off %}
+    <pre>{{ data }}</pre>
+    {% endautoescape %}
+  {% else %}
+    Empty.
+  {% endif %}
+{% else %}
+    No record for {{ id }}.
+{% endif %}
+
+</body>
+</html>

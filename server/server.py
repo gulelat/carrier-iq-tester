@@ -216,21 +216,24 @@ class StatPage(webapp.RequestHandler) :
 class LogPage(webapp.RequestHandler) :
     def get(self):
         try :
-            n = int(self.request.get('n'))
+            s = self.request.get('n', None)
+            n = 0
+            if s is not None :
+                n = int(s)
         except ValueError :
             errorPage(self, error='Invalid Parameter')
             return
         wr = self.response.out.write
 
+        log = { 'found': False, 'id': n }
         # XXX is there a simpler query for id?
-        cnt = 0
-        for r in Report.gql("WHERE __key__ = :1", db.Key.from_path('Report', n)) :
-            wr("Log for %s<br><hr>\n" % r.key().id())
-            wr(cgi.escape(r.log).replace("\n", "<br>\n"))
-            wr("<br>\n")
-            cnt += 1
-        if cnt == 0 :
-            wr("No matches for %d<br>" % (n,))
+        if s is not None :
+            for r in Report.gql("WHERE __key__ = :1", db.Key.from_path('Report', n)) :
+                log['found'] = True
+                log['id'] = r.key().id()
+                log['data'] = cgi.escape(r.log)
+                break
+        templ(self, 'viewlog.html', **log)
 
 class MainPage(webapp.RequestHandler) :
     def get(self):
