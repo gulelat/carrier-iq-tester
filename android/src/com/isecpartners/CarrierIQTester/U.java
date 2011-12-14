@@ -23,6 +23,24 @@ public class U {
         public void log(String s);
     };
 
+    public static class LogCapture implements LogFunc {
+        LinkedList<String> strings;
+
+        LogCapture() {
+            strings = new LinkedList<String>();
+        }
+
+        public void log(String s) {
+            strings.add(s);
+        }
+
+        public LinkedList<String> get() {
+            LinkedList<String> ss = strings;
+            strings = new LinkedList<String>();
+            return ss;
+        }
+    }
+
     public static LinkedList<File> allFiles(String dir, String pat, LinkedList<File> l) {
         try {
             for(File f : new File(dir).listFiles()) {
@@ -42,66 +60,72 @@ public class U {
         return allFiles(dir, pat, new LinkedList<File>());
     }
 
-    public static String grep(String fn, String pat) {
+    public static boolean grep(LogFunc l, String fn, String pat) {
+    	int cnt = 0;
         try {
             BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(fn)));
             String line;
             while((line = f.readLine()) != null) {
-                if(line.matches(pat))
-                    return line;
+                if(line.matches(pat)) {
+                	cnt ++;
+                	l.log(line);
+                }
             }
         } catch(Exception e) { // XXX more specific
             Log.e(U.TAG, "Error reading file: " + fn);
         }
-        return null;
+        return cnt > 0;
     }
 
-    public static String grepCmd(String cmd, String pat) {
-        try {
+    public static boolean grepCmd(LogFunc l, String cmd, String pat) {
+        int cnt = 0;
+    	try {
             Process p = Runtime.getRuntime().exec(cmd);
             BufferedReader f = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             while((line = f.readLine()) != null) {
                 if(line.matches(pat))
-                    return line;
+                    l.log(line);
             }
         } catch (Exception e) { // XXX more specific
             Log.e(U.TAG, "Error running cmd: " + cmd);
         }
-        return null;
+        return cnt > 0;
     }
 
     public static final DetectFunc matchFile = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String fpat, String pat) {
             String pat2 = ".*" + pat + ".*";
-            String found = null;
-            String fn = null;
+            LogCapture matched = new LogCapture();
 
+            LinkedList<File> files;
             if(fpat.contains(".*") && fpat.contains("/")) {
                 int idx = fpat.lastIndexOf("/");
                 String dir = fpat.substring(0, idx);
                 String fpat2 = fpat.substring(idx+1);
-                for(File f : allFiles(dir, fpat2)) {
-                    fn = f.getAbsolutePath();
-                    found = grep(fn, pat2);
-                    if(found != null)
-                        break;
-                }
+                files = allFiles(dir, fpat2);
             } else {
-                // no pattern, open file directly...
-                fn = fpat;
-                found = grep(fn, pat2);
+            	files = new LinkedList<File>();
+            	files.add(new File(fpat));
             }
-            if(found != null) 
-                Log.i(U.TAG, "Found match for " + pat + " in " + fn + ": " + found);
-            return (found != null);
+            
+            int cnt = 0;
+            for(File f : files) {
+                String fn = f.getAbsolutePath();
+                grep(matched, fn, pat2);
+                for(String m : matched.get()) {
+                	l.log("Found match for " + pat + " in " + fn + ": " + m + "\n");
+                  	cnt++;
+               }
+            }
+            return cnt > 0;
         }
     };
 
     public static final DetectFunc matchFilename = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String dir, String pat) {
             for(File f : allFiles(dir, pat)) {
-                Log.i(U.TAG, "Found filename matching " + pat + ": " + f.getAbsolutePath());
+                l.log("  Found filename matching " + pat + ": " + f.getAbsolutePath() + "\n");
                 return true;
             }
             return false;
@@ -112,7 +136,7 @@ public class U {
         public boolean Func(Context c, LogFunc l, String pkg, String unused) {
             try {
                 c.getPackageManager().getApplicationInfo(pkg, 0);
-                Log.i(U.TAG, "Found package " + pkg);
+                l.log("  Found package " + pkg + "\n");
                 return true;
             } catch(NameNotFoundException e) {
                 return false;
@@ -120,11 +144,12 @@ public class U {
         }
     };
 
-    public static final boolean grepCmdAndLog(String cmd, String pat, String logmsg) {
+    public static final boolean grepCmdAndLog(LogFunc l, String cmd, String pat, String logmsg) {
         String pat2 = ".*" + pat + ".*";
-        String m = grepCmd(cmd, pat2);
-        if(m != null) {
-            Log.i(U.TAG, "Found " + logmsg + " matching " + pat + ": " + m);
+        LogCapture matched = new LogCapture();
+        if(grepCmd(matched, cmd, pat2)) {
+            for(String m : matched.get())
+                l.log("  Found " + logmsg + " matching " + pat + ": " + m + "\n");
             return true;
         }
         return false;
@@ -132,26 +157,25 @@ public class U {
 
     public static final DetectFunc matchProcess = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String pat, String unused) {
-            return grepCmdAndLog("ps", pat, "process");
+            return grepCmdAndLog(l, "ps", pat, "process");
         }
     };
 
-
     public static final DetectFunc matchDmesg = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String pat, String unused) {
-            return grepCmdAndLog("dmesg", pat, "dmesg");
+            return grepCmdAndLog(l, "dmesg", pat, "dmesg");
         }
     };
 
     public static final DetectFunc matchLogcat = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String pat, String unused) {
-            return grepCmdAndLog("logcat -d", pat, "logcat");
+            return grepCmdAndLog(l, "logcat -d", pat, "logcat");
         }
     };
 
     public static final DetectFunc matchService = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String pat, String unused) {
-            return grepCmdAndLog("service list", pat, "service");
+            return grepCmdAndLog(l, "service list", pat, "service");
         }
     };
 
@@ -159,7 +183,7 @@ public class U {
         public boolean Func(Context c, LogFunc l, String klass, String unused) {
             try {
                 Class.forName(klass);
-                Log.i(U.TAG, "Found class: " + klass);
+                l.log("  Found class: " + klass + "\n");
                 return true;
             } catch (Exception e) { // XXX more specific
                 return false;

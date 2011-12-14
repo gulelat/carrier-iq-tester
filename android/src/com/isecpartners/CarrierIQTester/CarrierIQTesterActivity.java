@@ -1,7 +1,5 @@
 package com.isecpartners.CarrierIQTester;
 
-import java.util.LinkedList;
-
 import android.app.Activity;
 
 import android.os.Bundle;
@@ -26,10 +24,10 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     Button reportButton = null;
    
     class AnalysisTask extends AsyncTask<Void,Integer,Long> implements U.LogFunc {
-    	LinkedList<String> tmpLog = new LinkedList<String>();
+    	U.LogCapture tmpLog = new U.LogCapture();
     	
     	public synchronized void log(String s) {
-    		tmpLog.add(s);
+    		tmpLog.log(s);
     	}
     	
     	protected Long doInBackground(Void... args) {
@@ -52,9 +50,10 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     	}
     	
     	protected synchronized void onProgressUpdate(Integer... progress) {
-    		for(String s : tmpLog)
+    		for(String s : tmpLog.get()) {
+    			Log.i(TAG, s);
     			CarrierIQTesterActivity.this.log(s);
-    		tmpLog.clear();
+    		}
     	}
 
     	protected void onPostExecute(Long res) {

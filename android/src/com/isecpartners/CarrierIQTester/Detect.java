@@ -90,9 +90,11 @@ public enum Detect {
 
     public long test(Context c, U.LogFunc l) {
         long start = System.currentTimeMillis();
+        l.log("Running test " + n + "\n");
         long ret = func.Func(c, l, arg1, arg2) ? (1L << n) : 0;
         double sec = (System.currentTimeMillis() - start) / 1000.0;
         l.log("test " + n + " returned " + Long.toHexString(ret) + " in " + sec + "\n");
+        
         return ret;
     }
 }
