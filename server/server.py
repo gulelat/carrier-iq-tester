@@ -49,13 +49,14 @@ class Report(db.Model) :
     phone = db.StringProperty()
     carrier = db.StringProperty()
     features = db.IntegerProperty() # bit vector
+    log = db.TextProperty()
     auth = db.StringProperty() # sha hash
     verified = db.IntegerProperty() # VERIFIED_*
 
 def verify(r) :
     def hash(s) :
         return hashlib.sha256(s).hexdigest()
-    s = "secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d" % (options['secret'], r.version, r.os, r.phone, r.carrier, r.features)
+    s = "secret=%s:version=%d:os=%s:phone=%s:carrier=%s:features=%d:log=%s" % (options['secret'], r.version, r.os, r.phone, r.carrier, r.features, r.log)
     auth = hash(s)
     if r.auth == auth :
         r.verified = VERIFIED_YES
@@ -99,6 +100,7 @@ class ReportPage(webapp.RequestHandler) :
         r.phone = self.request.get('phone')
         r.carrier = self.request.get('carrier')
         r.features = features
+        r.log = self.request.get('log')
         r.auth = self.request.get('auth')
         r.verified = VERIFIED_NONE
         
