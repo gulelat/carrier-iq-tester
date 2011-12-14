@@ -114,7 +114,7 @@ public class U {
                 String fn = f.getAbsolutePath();
                 grep(matched, fn, pat2);
                 for(String m : matched.get()) {
-                	l.log("Found match for " + pat + " in " + fn + ": " + m + "\n");
+                	l.log("  Found match for " + pat + " in " + fn + ": " + m + "\n");
                   	cnt++;
                }
             }
