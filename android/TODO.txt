@@ -7,4 +7,4 @@
 - adding more logging to the detection (instead of logging just to the android adb logcat log)
 - perhaps submitting the entire log to the server, in case we want to peruse it afterwards
 - capturing the result from the POST during reporting and showing that during the toast
-- figure out why Amanda's test phone has all tests returning 0
+- figure out why Amanda's test phone has all tests returning 0, from the logcat it appears it is finding the things so perhaps it's just an issue with how information is being displayed in the log?
