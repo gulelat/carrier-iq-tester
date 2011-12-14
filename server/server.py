@@ -134,14 +134,7 @@ class AdminPage(webapp.RequestHandler) :
     def get(self) :
         allowAdmins(self, self.onAdmin)
     def onAdmin(self, user) :
-        # XXX
-        wr = self.response.out.write
-        wr('<h1>Admin Page</h1>')
-        wr('<p>Welcome %s!' % (cgi.escape(user.email())))
-        wr('<p>src is: %s' % (self.request.remote_addr))
-        x = obfSrc(self.request.remote_addr)
-        wr('<p>obfSrc is: %x' % (x))
-        wr('<p>unIp is: %x' % (unIp(self.request.remote_addr)))
+        templ(self, "admin.html")
 
 def getWithAdd(d, k, f) :
     if k not in d :
@@ -244,25 +237,20 @@ class MainPage(webapp.RequestHandler) :
 
 class TestForm(webapp.RequestHandler) :
     def get(self) :
+        allowAdmins(self, self.onAdmin)
+    def onAdmin(self, u) :
         if not options['testForm'] :
             errorPage(self, error='Disabled')
             return
-        self.response.out.write('''<form action="/report" method="post">
-<br>Version:<input name="version" value="0">
-<br>OS:<input name="os" value="">
-<br>Phone:<input name="phone" value="">
-<br>Carrier:<input name="carrier" value="">
-<br>Features:<input name="features" value="">
-<br>Auth:<input name="auth" value="">
-<br><input type="submit" name="submit">''')
+        templ(self, 'test.html')
 
 application = webapp.WSGIApplication([
+    ('/', MainPage),
     ('/report', ReportPage),
     ('/admin', AdminPage),
     ('/admin/stats', StatPage),
     ('/admin/viewlog', LogPage),
-    ('/test', TestForm),
-    ('/', MainPage),
+    ('/admin/test', TestForm),
 ], debug=options['debug'])
 
 
