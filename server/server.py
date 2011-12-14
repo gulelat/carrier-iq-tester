@@ -215,6 +215,9 @@ class StatPage(webapp.RequestHandler) :
         
 class LogPage(webapp.RequestHandler) :
     def get(self):
+        allowAdmins(self, self.onAdmin)
+
+    def onAdmin(self, u) :
         try :
             s = self.request.get('n', None)
             n = 0
