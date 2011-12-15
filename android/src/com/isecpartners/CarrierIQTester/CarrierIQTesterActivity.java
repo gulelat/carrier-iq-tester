@@ -46,11 +46,17 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
                 v |= d.test(c, this);
                 publishProgress((int)(prog++ * pfact));
             }
+            
             Log.i(TAG, "computed flag: " + Long.toHexString(v));
+            tmpLog.log("Passed tests: " + U.vecToString(v));
             return v;
     	}
-    	
-    	protected synchronized void onProgressUpdate(Integer... progress) {
+    
+       	protected void onProgressUpdate(Integer... progress) {
+       		flushLog();
+       	}
+       	
+    	synchronized void flushLog() {
     		for(String s : tmpLog.get()) {
     			Log.i(TAG, s);
     			CarrierIQTesterActivity.this.log(s);
@@ -58,6 +64,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
     	}
 
     	protected void onPostExecute(Long res) {
+    		flushLog();
     		analysisResult = res;
     		analysisDone = true;
     		analyzeButton.setEnabled(true);
@@ -170,6 +177,8 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
 				reportResults();
 			}
 		});
+        
+        Test.all(getApplicationContext()); // for testing only
     }
 
 	@Override

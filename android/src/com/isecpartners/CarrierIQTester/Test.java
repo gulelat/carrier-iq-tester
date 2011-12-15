@@ -21,8 +21,8 @@ public class Test {
     }
 
     public static void all(Context c) {
-        detect(c, "pkg", U.findPackage, "com.android.phone");
-        detect(c, "pkg", U.findPackage, "com.android.bogus");
+        detect(c, "pkg", U.matchPackage, "phone");
+        detect(c, "pkg", U.matchPackage, "bogus");
 
         detect(c, "fname", U.matchFilename, "/dev", "mtd0");
         detect(c, "fname", U.matchFilename, "/dev", "mtd.*");
@@ -30,10 +30,10 @@ public class Test {
 
         detect(c, "file", U.matchFile, "/etc/hosts", ".*localhost.*");
         detect(c, "file", U.matchFile, "/etc/hosts", ".*bogus.*");
-        detect(c, "file", U.matchFile, "/etc/.*.xml", ".*monospace.*");
+        detect(c, "file", U.matchFile, "/etc/.*.xml", ".*Activity.*");
         detect(c, "file", U.matchFile, "/etc/.*.xml", ".*bogus.*");
 
-        detect(c, "dmesg", U.matchDmesg, "yaffs");
+        detect(c, "dmesg", U.matchDmesg, "binder");
         detect(c, "dmesg", U.matchDmesg, "bogus");
 
         detect(c, "logcat", U.matchLogcat, "GC_CONCURRENT");
@@ -45,8 +45,8 @@ public class Test {
         detect(c, "process", U.matchProcess, "mediaserver");
         detect(c, "process", U.matchProcess, "bogus");
 
-        detect(c, "class", U.matchClass, "android.net.Proxy");
-        detect(c, "class", U.matchClass, "com.android.bogus");
+        detect(c, "class", U.findClass, "android.net.Proxy");
+        detect(c, "class", U.findClass, "com.android.bogus");
     }
 }
 

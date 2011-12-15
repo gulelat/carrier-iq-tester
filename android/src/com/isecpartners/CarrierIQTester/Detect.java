@@ -18,10 +18,8 @@ public enum Detect {
      */
 
     // XXX should we add a score to these?
-    DETECT0(0, U.findPackage, "com.carrieriq.iqagent"),
-    DETECT1(1, U.findPackage, "com.htc.android.iqagent"),
-    DETECT2(2, U.findPackage, "com.carrieriq.attrom"),
-    DETECT3(3, U.findPackage, "com.carrieriq.tmobile"),
+    DETECT0(0, U.matchPackage, "com.carrieriq"),
+    DETECT1(1, U.matchPackage, "iqagent"),
 
     DETECT4(4, U.matchFilename, "/dev/", "sdio_tty_ciq.*"),
     DETECT5(5, U.matchFilename, "/dev/socket/", "iqbrd"),
@@ -66,8 +64,8 @@ public enum Detect {
     DETECT36(36, U.matchProcess, "iqd"),
 
     // XXX should we instead just look for a file for this, like a jar?
-    DETECT37(37, U.matchClass, "com.carrieriq.iqagent.service.receivers.BootCompletedReceiver"),
-    DETECT38(38, U.matchClass, "com.carrieriq.iqagent.IQService");
+    DETECT37(37, U.findClass, "com.carrieriq.iqagent.service.receivers.BootCompletedReceiver"),
+    DETECT38(38, U.findClass, "com.carrieriq.iqagent.IQService");
 
 
     // ---------------------------------

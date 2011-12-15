@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 
 import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.util.Log;
 
 /* static utils */
@@ -41,6 +43,20 @@ public class U {
         }
     }
 
+    public static String vecToString(long v) {
+        StringBuilder flags = new StringBuilder();
+        for(long i = 0; i < 64; i ++) {
+        	if((v & (1L << i)) != 0) {
+        		if(flags.length() > 0)
+        			flags.append(",");
+        		flags.append("" + i);
+        	}
+        }
+        if(flags.length() == 0)
+        	flags.append("none");
+        return flags.toString();
+    }
+    
     public static LinkedList<File> allFiles(String dir, String pat, LinkedList<File> l) {
         try {
             for(File f : new File(dir).listFiles()) {
@@ -84,8 +100,10 @@ public class U {
             BufferedReader f = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             while((line = f.readLine()) != null) {
-                if(line.matches(pat))
+                if(line.matches(pat)) {
+                	cnt ++;
                     l.log(line);
+                }
             }
         } catch (Exception e) { // XXX more specific
             Log.e(U.TAG, "Error running cmd: " + cmd);
@@ -132,15 +150,17 @@ public class U {
         }
     };
 
-    public static final DetectFunc findPackage = new DetectFunc() {
-        public boolean Func(Context c, LogFunc l, String pkg, String unused) {
-            try {
-                c.getPackageManager().getApplicationInfo(pkg, 0);
-                l.log("  Found package " + pkg + "\n");
-                return true;
-            } catch(NameNotFoundException e) {
-                return false;
-            }
+    public static final DetectFunc matchPackage = new DetectFunc() {
+        public boolean Func(Context c, LogFunc l, String pat, String unused) {
+        	String pat2 = ".*" + pat + ".*";
+        	boolean found = false;
+        	for(PackageInfo p : c.getPackageManager().getInstalledPackages(0)) {
+        		if(p.packageName.matches(pat2)) {
+        			found = true;
+        			l.log("  Found package matching " + pat + ": " + p.packageName + "\n");
+        		}
+        	}
+        	return found;
         }
     };
 
@@ -175,11 +195,22 @@ public class U {
 
     public static final DetectFunc matchService = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String pat, String unused) {
-            return grepCmdAndLog(l, "service list", pat, "service");
+        	boolean found = false;
+        	String pat2 = ".*" + pat + ".*";
+            for(PackageInfo p : c.getPackageManager().getInstalledPackages(PackageManager.GET_SERVICES)) {
+            	if(p.services != null)
+           		for(ServiceInfo s : p.services) {
+           			if(s != null && s.name.matches(pat2)) {
+           				l.log("  Found service matching " + pat + ": " + s.name + "\n");
+           				found = true;
+           			}
+           		}
+            }
+            return found;
         }
     };
 
-    public static final DetectFunc matchClass = new DetectFunc() {
+    public static final DetectFunc findClass = new DetectFunc() {
         public boolean Func(Context c, LogFunc l, String klass, String unused) {
             try {
                 Class.forName(klass);
