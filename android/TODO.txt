@@ -3,9 +3,8 @@
 - any other analysis tweaks
 - any ideas for making the gui more pleasant
 - capturing the result from the POST during reporting and showing that during the toast
-- figure out why Amanda's test phone has all tests returning 0, from the logcat it appears it is finding the things so perhaps it's just an issue with how information is being displayed in the log?
 
 
 --- server
-- make htlm presentation nicer
+- make html presentation nicer
 - we need a front page that directs users to the project eventually
