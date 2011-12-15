@@ -178,7 +178,7 @@ public class CarrierIQTesterActivity extends Activity implements U.LogFunc {
 			}
 		});
         
-        Test.all(getApplicationContext()); // for testing only
+        //Test.all(getApplicationContext()); // for testing only
     }
 
 	@Override
